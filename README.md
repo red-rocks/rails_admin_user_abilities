@@ -55,6 +55,7 @@ Also add method for set CanCanCan rules (in app/models/ability.rb)
 ```ruby
 class Ability
   include CanCan::Ability
+  # some code
 
   def initialize(user)
     # some code
