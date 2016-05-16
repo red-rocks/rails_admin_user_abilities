@@ -1,0 +1,30 @@
+ru:
+  mongoid: &mongoid
+    models:
+      rails_admin_user_abilities/user_ability: Права доступа
+      rails_admin_user_abilities/model_access: Права доступа
+  activerecord:
+    <<: *mongoid
+
+  admin:
+    actions:
+      user_abilities:
+        menu:           Права доступа
+        breadcrumb:     Права доступа
+        error:          Ошибка
+        error_no_data:  Нет данных
+        success:        Успешно
+        title:          Права доступа
+
+      model_accesses:
+        menu:           Права доступа
+        breadcrumb:     Права доступа
+        error:          Ошибка
+        error_no_data:  Нет данных
+        success:        Успешно
+        title:          Права доступа
+
+    user_abilities:
+      global_actions:
+          manage: "Делать все"
+          read: "Видеть"

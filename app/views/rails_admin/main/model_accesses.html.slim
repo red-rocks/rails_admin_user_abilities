@@ -1,0 +1,62 @@
+- if request.get?
+  - _model = @abstract_model.model
+  - _model_str = _model.name.underscore
+
+  #rails_admin_model_accesses_wrapper
+    = stylesheet_link_tag 'rails_admin/rails_admin_user_abilities'
+    = javascript_include_tag 'rails_admin/rails_admin_user_abilities'
+    
+    #rails_admin_model_accesses.col-md-12
+      .col-md-3
+        ul.nav.nav-pills.nav-stacked
+          - @users.each do |u|
+            li= link_to u.email, "#user_abilities_#{u._id}", title: u._id, "data-toggle" => "tab" 
+        .cf
+            
+      .tab-content.col-md-9
+        - @users.each do |u|
+          ruby:
+            url = model_accesses_path(model_name: @abstract_model, id: @object.id, user_id: u._id)
+            user_abilities = ::Ability.new(u)
+            _id = "user_abilities_#{u._id}"
+          .tab-pane{id=_id data-url=url}
+            .row-fluid
+              .controls
+                - [:manage, :read].each do |_action_str|
+                  div
+                    = check_box "model_accesses[][#{u._id}]#{_model_str}", _action_str, {checked: user_abilities.can?(_action_str, @object), class: "model_accesses_trigger"}, "can", "cannot"
+                    = label("model_accesses[][#{u._id}]#{_model_str}", _action_str, "#{I18n.t("admin.user_abilities.global_actions.#{_action_str}")} (#{_action_str})")
+                hr
+                ruby: 
+                  _bindings = {
+                    abstract_model: @abstract_model,
+                    view: self
+                  }
+                - RailsAdmin::Config::Actions.all(:all, _bindings).select { |a| a.http_methods.include?(:get) and a.member? }.map do |a|
+                  - _action = a.class.name.demodulize
+                  - _action_str = _action.underscore
+                  - next if @excluded_actions.include?(_action_str)
+                  - next unless a.visible
+                  
+                  div
+                    = check_box "model_accesses[][#{u._id}]#{_model_str}", _action_str, {checked: user_abilities.can?(_action_str.to_sym, @object), class: "model_accesses_trigger"}, "can", "cannot"
+                    = label("model_accesses[][#{u._id}]#{_model_str}", _action_str, "#{wording_for(:menu, a, @abstract_model)} (#{_action_str})")
+                    
+            - if u.ability
+              .col-md-12
+                hr
+                button(data-toggle="collapse" data-target="#model_accesses_hash_#{u.id}")= "Чистый код"
+                .collapse(id="model_accesses_hash_#{u.id}")
+                  pre= JSON.pretty_generate({"#{_model.name}": (u.ability.accesses[_model.name] || {}) })
+
+- elsif request.post?
+  - uniq_id = "rails_admin_model_accesses_#{(Time.new.to_f * 1000).to_i}"
+  span(class="message #{@_class}" id=uniq_id)
+    = @message
+    javascript:
+      setTimeout(function(){
+        $('##{uniq_id}').fadeOut(100, function(){
+          $('##{uniq_id}').remove(); 
+        }); 
+      }, 1000);
+ 

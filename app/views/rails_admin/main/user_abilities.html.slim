@@ -1,0 +1,67 @@
+- if request.get?
+  - url = user_abilities_path(model_name: @abstract_model, id: @object.id)
+
+  #rails_admin_user_abilities_wrapper
+    = stylesheet_link_tag 'rails_admin/rails_admin_user_abilities'
+    = javascript_include_tag 'rails_admin/rails_admin_user_abilities'
+    
+    #rails_admin_user_abilities.col-md-12{data-url=url}
+      .col-md-3
+        ul.nav.nav-pills.nav-stacked
+          - @models.each do |m|
+            ruby:
+              _model = m.abstract_model.model
+              _content = m.abstract_model.config.label
+              _title = m.abstract_model.config.label
+              _link = "#user_abilities_#{_model.name.gsub("::", "").underscore}"        
+            li= link_to _content, _link, title: _title, "data-toggle" => "tab" 
+        .cf
+            
+      .tab-content.col-md-9
+        - @models.each do |m|
+          ruby:
+            _model = m.abstract_model.model
+            _model_str = _model.name.underscore
+            _content = m.abstract_model.config.label
+            _title = m.abstract_model.config.label
+            _id = "user_abilities_#{_model.name.gsub("::", "").underscore}"
+          .tab-pane{id=_id}
+            .row-fluid
+              .controls
+                - [:manage, :read].each do |_action_str|
+                  div
+                    = check_box "user_abilities[]#{_model_str}", _action_str, {checked: @user_abilities.can?(_action_str, _model), class: "user_abilities_trigger"}, "can", "cannot"
+                    = label("user_abilities[]#{_model_str}", _action_str, "#{I18n.t("admin.user_abilities.global_actions.#{_action_str}")} (#{_action_str})")
+                hr
+                ruby: 
+                  _bindings = {
+                    abstract_model: m.abstract_model,
+                    view: self
+                  }
+                - RailsAdmin::Config::Actions.all(:all, _bindings).select { |a| a.http_methods.include?(:get) }.map do |a|
+                  - _action = a.class.name.demodulize
+                  - _action_str = _action.underscore
+                  - next if @excluded_actions.include?(_action_str)
+                  - next unless a.visible
+                  
+                  div
+                    = check_box "user_abilities[]#{_model_str}", _action_str, {checked: @user_abilities.can?(_action_str.to_sym, _model), class: "user_abilities_trigger"}, "can", "cannot"
+                    = label("user_abilities[]#{_model_str}", _action_str, "#{wording_for(:menu, a, m.abstract_model)} (#{_action_str})")
+                    
+    - if @object.ability
+      .col-md-12
+        hr
+        button(data-toggle="collapse" data-target="#abilities_hash")= "Чистый код"
+        #abilities_hash.collapse
+          pre= JSON.pretty_generate @object.ability.abilities
+
+- elsif request.post?
+  - uniq_id = "rails_admin_user_abilities_#{(Time.new.to_f * 1000).to_i}"
+  span(class="message #{@_class}" id=uniq_id)
+    = @message
+    javascript:
+      setTimeout(function(){
+        $('##{uniq_id}').fadeOut(100, function(){
+          $('##{uniq_id}').remove(); 
+        }); 
+      }, 1000);
