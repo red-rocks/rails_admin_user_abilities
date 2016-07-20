@@ -8,7 +8,7 @@ module RailsAdminUserAbilities
 
         def to_cancancan(ability_object)
           abilities.each_pair do |model_name, rules|
-            if defined?(model_name)
+            if Kernel.const_defined?(model_name)
               _model = model_name.constantize
               rules.each_pair do |act, meth|
                 ability_object.send(meth, act.to_sym, _model)
@@ -17,7 +17,7 @@ module RailsAdminUserAbilities
           end
 
           accesses.each_pair do |model_name, ids_rules|
-            if defined?(model_name)
+            if Kernel.const_defined?(model_name)
               _model = model_name.constantize
               ids_rules.each_pair do |obj_id, rules|
                 rules.each_pair do |act, meth|
