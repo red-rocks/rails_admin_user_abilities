@@ -43,7 +43,7 @@
                     = label("model_accesses[][#{u._id}]#{_model_str}", _action_str, "#{wording_for(:menu, a, @abstract_model)} (#{_action_str})")
                     
             - if u.ability
-              .col-md-12
+              .json_block.col-md-12
                 hr
                 button(data-toggle="collapse" data-target="#model_accesses_hash_#{u.id}")= "Чистый код"
                 .collapse(id="model_accesses_hash_#{u.id}")

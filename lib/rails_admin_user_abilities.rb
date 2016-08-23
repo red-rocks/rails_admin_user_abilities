@@ -1,5 +1,4 @@
-
-require "rails_admin_comments/version"
+require "rails_admin_user_abilities/version"
 
 require 'mongoid'
 require 'mongoid_userstamp'
