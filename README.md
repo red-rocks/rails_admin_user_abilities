@@ -1,5 +1,7 @@
 # RailsAdminUserAbilities
 
+### Rails 5 Support
+
 That will add fields for access to models, objects and actions in rails_admin panel for specific users.
 
 ## Installation
@@ -7,7 +9,7 @@ That will add fields for access to models, objects and actions in rails_admin pa
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'rails_admin_user_abilities'
+gem 'rails_admin_user_abilities', '~> 0.2.0'
 ```
 
 And then execute:
@@ -16,7 +18,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install rails_admin_user_abilities
+    $ gem install rails_admin_user_abilities -v 0.2.0
 
 ## Usage
 
@@ -71,7 +73,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/enjoycreative/rails_admin_user_abilities.
+Bug reports and pull requests are welcome on GitHub at https://github.com/red-rocks/rails_admin_user_abilities.
 
 
 ## License

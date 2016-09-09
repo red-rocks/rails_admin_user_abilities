@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "rails_admin_user_abilities"
   spec.version       = RailsAdminUserAbilities::VERSION
   spec.authors       = ["Alexander Kiseliev"]
-  spec.email         = ["dev@enjoycreate.ru"]
+  spec.email         = ["dev@redrocks.pro"]
 
   spec.summary       = %q{CanCanCan fields for rails_admin}
   spec.description   = %q{CanCanCan fields for rails_admin}
@@ -30,5 +30,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "bundler", "~> 1.10"
   spec.add_development_dependency "rake", "~> 10.0"
 
-  spec.add_dependency 'rails_admin', "~> 0.8.1"
+  spec.add_dependency "rails_admin", '>= 1.0.0.rc'
 end
