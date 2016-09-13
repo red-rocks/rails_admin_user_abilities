@@ -71,7 +71,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/enjoycreative/rails_admin_user_abilities.
+Bug reports and pull requests are welcome on GitHub at https://github.com/red-rocks/rails_admin_user_abilities.
 
 
 ## License
