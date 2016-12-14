@@ -48,6 +48,7 @@
                 button(data-toggle="collapse" data-target="#model_accesses_hash_#{u.id}")= "Чистый код".freeze
                 .collapse(id="model_accesses_hash_#{u.id}")
                   pre= JSON.pretty_generate({"#{_model.name}": (u.ability.accesses[_model.name] || {}) })
+  .cf{style='clear: both'}
 
 - elsif request.post?
   - uniq_id = "rails_admin_model_accesses_#{(Time.new.to_f * 1000).to_i}".freeze
