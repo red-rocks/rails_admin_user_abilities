@@ -55,7 +55,7 @@
         button(data-toggle="collapse" data-target="#abilities_hash")= "Чистый код".freeze
         #abilities_hash.collapse
           pre= JSON.pretty_generate @object.ability.abilities
-  .cf
+  .cf{style='clear: both'}
 
 - elsif request.post?
   - uniq_id = "rails_admin_user_abilities_#{(Time.new.to_f * 1000).to_i}".freeze
