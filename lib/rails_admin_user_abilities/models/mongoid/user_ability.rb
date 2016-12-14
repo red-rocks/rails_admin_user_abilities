@@ -8,7 +8,7 @@ module RailsAdminUserAbilities
           include ::Mongoid::Timestamps::Short
           # include ::Mongoid::Userstamp
 
-          belongs_to :rails_admin_user_abilitable, polymorphic: true
+          belongs_to :rails_admin_user_abilitable, polymorphic: true, optional: true
 
           store_in collection: "rails_admin_user_abilities"
 
