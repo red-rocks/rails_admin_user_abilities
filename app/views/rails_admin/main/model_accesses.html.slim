@@ -24,7 +24,9 @@
               .controls
                 - [:manage, :read].each do |_action_str|
                   div
-                    = check_box "model_accesses[][#{u._id}]#{_model_str}".freeze, _action_str, {checked: user_abilities.can?(_action_str, @object), class: "model_accesses_trigger".freeze}, "can".freeze, "cannot".freeze
+                    - confirm_message = "Вы уверены, что хотите изменить права доступа '#{I18n.t("admin.user_abilities.global_actions.#{_action_str}")}"
+                    / - confirm_on_change = "return confirm('#{confirm_message}');"
+                    = check_box "model_accesses[][#{u._id}]#{_model_str}".freeze, _action_str, {checked: user_abilities.can?(_action_str, @object), class: "model_accesses_trigger".freeze, data: {confirm_message: confirm_message}}, "can".freeze, "cannot".freeze
                     = label("model_accesses[][#{u._id}]#{_model_str}".freeze, _action_str, "#{I18n.t("admin.user_abilities.global_actions.#{_action_str}")} (#{_action_str})")
                 hr
                 ruby: 

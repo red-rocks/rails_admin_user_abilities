@@ -1,3 +1,3 @@
 module RailsAdminUserAbilities
-  VERSION = "0.2.0.4".freeze
+  VERSION = "0.2.0.5.rc".freeze
 end
