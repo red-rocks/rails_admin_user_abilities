@@ -28,13 +28,25 @@ module RailsAdmin
 
             if params['id'].present?
               if request.get?
-                @user_abilities = ::Ability.new(@object)
-                @models = RailsAdmin::Config.visible_models({})
-                @excluded_actions = ["dashboard"]
-                @action_aliases = {
-                  show: :read
-                }
-                render action: @action.template_name
+                case params[:set].to_s
+                when 'default'
+                  ability = @object.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @object)
+                  params[:user_abilities].each do |a|
+                    _model = a.camelcase
+                    # ability.abilities[_model] = {}
+                    ability.abilities.delete(_model)
+                  end
+                  ability.save
+                  redirect_to user_abilities_path(model_name: @abstract_model, id: @object.id)
+                else
+                  @user_abilities = ::Ability.new(@object)
+                  @models = RailsAdmin::Config.visible_models({})
+                  @excluded_actions = ["dashboard"]
+                  @action_aliases = {
+                    show: :read
+                  }
+                  render action: @action.template_name
+                end
 
               elsif request.post?
                 ability = @object.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @object)
@@ -100,12 +112,30 @@ module RailsAdmin
 
             if params['id'].present?
               if request.get?
-                @users = ::User.for_rails_admin.all.to_a || []
-                @excluded_actions = ["dashboard", "index", "history_index", "model_comments"]
-                @action_aliases = {
-                  show: :read
-                }
-                render action: @action.template_name
+                case params[:set].to_s
+                when 'default'
+                  @user = ::User.for_rails_admin.where(id: params[:user_id]).first
+                  obj_id = @object.id.to_s
+                  unless @user.nil?
+                    ability = @user.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @user)
+                    params[:model_accesses].each do |a|
+                      next if a.keys.first != @user.id.to_s
+                      _model = a.keys.first.camelcase
+                      # ability.accesses[_model] = {}
+                      ability.accesses.delete(_model)
+                    end
+                    ability.save
+                  end
+                  redirect_to model_accesses_path(model_name: @abstract_model, id: @object.id, user_id: @user._id)
+                  return false
+                else
+                  @users = ::User.for_rails_admin.all.to_a || []
+                  @excluded_actions = ["dashboard", "index", "history_index", "model_comments"]
+                  @action_aliases = {
+                    show: :read
+                  }
+                  render action: @action.template_name
+                end
 
               elsif request.post? and params[:user_id].present?
                 @user = ::User.for_rails_admin.where(id: params[:user_id]).first

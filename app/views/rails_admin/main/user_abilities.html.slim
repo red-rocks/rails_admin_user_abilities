@@ -29,6 +29,8 @@
           .tab-pane{id=_id}
             .row-fluid
               .controls
+                = link_to "Сбросить по умолчанию", user_abilities_path(model_name: @abstract_model, id: @object.id, set: :default, user_abilities: [_model_str])
+                br
                 - [:manage, :read].each do |_action_str|
                   div
                     - confirm_message = "Вы уверены, что хотите изменить права доступа '#{I18n.t("admin.user_abilities.global_actions.#{_action_str}")}"
@@ -51,8 +53,15 @@
                     = check_box "user_abilities[]#{_model_str}".freeze, _action_str, {checked: @user_abilities.can?(_action_str.to_sym, _model), class: "user_abilities_trigger".freeze}, "can".freeze, "cannot".freeze
                     = label("user_abilities[]#{_model_str}".freeze, _action_str, "#{wording_for(:menu, a, m.abstract_model)} (#{_action_str})")
                     
+                - if @object.ability
+                  .json_block
+                    hr
+                    button(data-toggle="collapse" data-target="#abilities_hash_#{_model_str.gsub("/", "_")}")= "Чистый код".freeze
+                    .collapse(id="abilities_hash_#{_model_str.gsub("/", "_")}")
+                      pre= JSON.pretty_generate(@object.ability.abilities[_model.name] || {})
+                    
     - if @object.ability
-      .col-md-12
+      .col-md-12.json_block
         hr
         button(data-toggle="collapse" data-target="#abilities_hash")= "Чистый код".freeze
         #abilities_hash.collapse
