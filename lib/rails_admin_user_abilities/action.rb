@@ -28,8 +28,8 @@ module RailsAdmin
 
             if params['id'].present?
               if request.get?
-                case params[:set].to_s
-                when 'default'
+                case params[:act].to_s
+                when 'set_default'
                   ability = @object.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @object)
                   params[:user_abilities].each do |a|
                     _model = a.camelcase
@@ -38,6 +38,20 @@ module RailsAdmin
                   end
                   ability.save
                   redirect_to user_abilities_path(model_name: @abstract_model, id: @object.id)
+
+                when 'update_json'
+                  ability = @object.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @object)
+                  ret = {}
+                  if params[:user_abilities].present?
+                    params[:user_abilities].each do |a|
+                      _model = a.camelcase
+                      ret[_model] = ability.abilities[_model]
+                    end
+                  else
+                    ret = ability.abilities
+                  end
+                  render plain: JSON.pretty_generate(ret)
+
                 else
                   @user_abilities = ::Ability.new(@object)
                   @models = RailsAdmin::Config.visible_models({})
@@ -112,22 +126,36 @@ module RailsAdmin
 
             if params['id'].present?
               if request.get?
-                case params[:set].to_s
-                when 'default'
+                case params[:act].to_s
+                when 'set_default'
                   @user = ::User.for_rails_admin.where(id: params[:user_id]).first
-                  obj_id = @object.id.to_s
                   unless @user.nil?
                     ability = @user.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @user)
                     params[:model_accesses].each do |a|
-                      next if a.keys.first != @user.id.to_s
-                      _model = a.keys.first.camelcase
+                      next if a != @user.id.to_s
+                      _model = a.camelcase
                       # ability.accesses[_model] = {}
                       ability.accesses.delete(_model)
                     end
                     ability.save
                   end
                   redirect_to model_accesses_path(model_name: @abstract_model, id: @object.id, user_id: @user._id)
-                  return false
+
+                when 'update_json'
+                  @user = ::User.for_rails_admin.where(id: params[:user_id]).first
+                  ability = @user.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @user)
+                  ret = {}
+                  if params[:model_accesses].present?
+                    params[:model_accesses].each do |a|
+                      next if a.keys.first != @user.id.to_s
+                      _model = a.keys.first.camelcase
+                      ret[_model] = ability.accesses[_model]
+                    end
+                  else
+                    ret = ability.abilities
+                  end
+                  render plain: JSON.pretty_generate(ret)
+
                 else
                   @users = ::User.for_rails_admin.all.to_a || []
                   @excluded_actions = ["dashboard", "index", "history_index", "model_comments"]

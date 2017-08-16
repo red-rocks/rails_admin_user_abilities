@@ -1,4 +1,4 @@
-$(document).delegate ".user_abilities_trigger, .model_accesses_trigger", 'change', (e)->
+$(document).on 'change', ".user_abilities_trigger, .model_accesses_trigger", (e)->
   _target = $(e.currentTarget)
   _confirm_message = _target.data('confirm-message')
   if !_confirm_message or confirm(_confirm_message)
@@ -9,3 +9,15 @@ $(document).delegate ".user_abilities_trigger, .model_accesses_trigger", 'change
       _label.append(data)
   else
     _target.prop("checked", !_target.prop("checked"));
+
+
+$(document).on "ajax:send", "", (e, xhr)->
+  button = $(e.currentTarget)
+  target = $(button.data('target'))
+  target.html("")
+
+
+$(document).on "ajax:success", ".json_block button[data-remote]", (e, data, status, xhr)->
+  button = $(e.currentTarget)
+  target = $(button.data('target'))
+  target.html(data)

@@ -22,7 +22,7 @@
           .tab-pane{id=_id data-url=url}
             .row-fluid
               .controls
-                = link_to "Сбросить по умолчанию", model_accesses_path(model_name: @abstract_model, id: @object.id, user_id: u._id, set: :default, model_accesses: [_model_str])
+                = link_to "Сбросить по умолчанию", model_accesses_path(model_name: @abstract_model, id: @object.id, user_id: u._id, act: :set_default, model_accesses: [_model_str])
                 br
                 - [:manage, :read].each do |_action_str|
                   div
