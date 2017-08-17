@@ -33,7 +33,7 @@
                 br
                 - [:manage, :read].each do |_action_str|
                   div
-                    - confirm_message = "Вы уверены, что хотите изменить права доступа '#{I18n.t("admin.user_abilities.global_actions.#{_action_str}")}"
+                    - confirm_message = "Вы уверены, что хотите изменить права доступа '#{I18n.t("admin.user_abilities.global_actions.#{_action_str}")}'?"
                     / - confirm_on_change = "return confirm('#{confirm_message}');"
                     = check_box "user_abilities[]#{_model_str}".freeze, _action_str, {checked: @user_abilities.can?(_action_str, _model), class: "user_abilities_trigger".freeze, data: {confirm_message: confirm_message}}, "can".freeze, "cannot".freeze
                     = label("user_abilities[]#{_model_str}".freeze, _action_str, "#{I18n.t("admin.user_abilities.global_actions.#{_action_str}")} (#{_action_str})")
@@ -43,32 +43,37 @@
                     abstract_model: m.abstract_model,
                     view: self
                   }   
+                  dangerous_actions = ['model_accesses', 'user_abilities'].freeze
                 - RailsAdmin::Config::Actions.all(:all, _bindings).select { |a| a.http_methods.include?(:get) }.map do |a|
                   - _action = a.class.name.demodulize
                   - _action_str = _action.underscore
                   - next if @excluded_actions.include?(_action_str)
                   - next unless a.visible
-                  
+                  - if dangerous_actions.include?(_action_str)
+                    - confirm_message = "Вы уверены, что хотите изменить права доступа '#{wording_for(:menu, a, m.abstract_model)}'?"
+                  - else
+                    - confirm_message = nil
+                    
                   div
-                    = check_box "user_abilities[]#{_model_str}".freeze, _action_str, {checked: @user_abilities.can?(_action_str.to_sym, _model), class: "user_abilities_trigger".freeze}, "can".freeze, "cannot".freeze
+                    = check_box "user_abilities[]#{_model_str}".freeze, _action_str, {checked: @user_abilities.can?(_action_str.to_sym, _model), class: "user_abilities_trigger".freeze, data: {confirm_message: confirm_message}}, "can".freeze, "cannot".freeze
                     = label("user_abilities[]#{_model_str}".freeze, _action_str, "#{wording_for(:menu, a, m.abstract_model)} (#{_action_str})")
                     
-                - if @object.ability
-                  - block_abilities_hash_id = "abilities_hash_#{_model_str.gsub("/", "_")}"
-                  - update_json_url = user_abilities_path(model_name: @abstract_model, id: @object.id, act: :update_json, user_abilities: [_model_str])
-                  .json_block
-                    hr
-                    button(data-toggle="collapse" data-target="##{block_abilities_hash_id}")= "Чистый код".freeze
-                    button(data-remote="true" data-target="##{block_abilities_hash_id} pre" data-url=update_json_url)= "Обновить".freeze
-                    .collapse(id=block_abilities_hash_id)
-                      pre= JSON.pretty_generate(@object.ability.abilities[_model.name] || {})
+              - if @object.ability
+                - block_abilities_hash_id = "abilities_hash_#{_model_str.gsub("/", "_")}"
+                - update_json_url = user_abilities_path(model_name: @abstract_model, id: @object.id, act: :update_json, user_abilities: [_model_str])
+                .json_block
+                  hr
+                  button(data-toggle="collapse" data-target="##{block_abilities_hash_id}" class="toggle_json_block")= "Чистый код".freeze
+                  button(data-remote="true" data-target="##{block_abilities_hash_id} pre" data-url=update_json_url class="update_json_block")= "Обновить".freeze
+                  .collapse(id=block_abilities_hash_id)
+                    pre= JSON.pretty_generate(@object.ability.abilities[_model.name] || {})
                     
     - if @object.ability
       - update_json_url = user_abilities_path(model_name: @abstract_model, id: @object.id, act: :update_json)
       .col-md-12.json_block
         hr
-        button(data-toggle="collapse" data-target="#abilities_hash")= "Чистый код".freeze
-        button(data-remote="true" data-target="#abilities_hash pre" data-url=update_json_url)= "Обновить".freeze
+        button(data-toggle="collapse" data-target="#abilities_hash" class="toggle_json_block")= "Чистый код".freeze
+        button(data-remote="true" data-target="#abilities_hash pre" data-url=update_json_url class="update_json_block")= "Обновить".freeze
         #abilities_hash.collapse
           pre= JSON.pretty_generate @object.ability.abilities
   .cf{style='clear: both'}

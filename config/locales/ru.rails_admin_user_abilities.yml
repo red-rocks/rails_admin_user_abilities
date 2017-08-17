@@ -26,5 +26,5 @@ ru:
 
     user_abilities:
       global_actions:
-          manage: "Делать все"
-          read: "Видеть"
+        manage: "Делать все"
+        read: "Видеть"

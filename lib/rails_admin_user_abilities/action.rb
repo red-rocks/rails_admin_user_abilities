@@ -19,7 +19,7 @@ module RailsAdmin
         end
 
         register_instance_option :route_fragment do
-          'user_abilities'
+          'ability'
         end
 
         register_instance_option :controller do
@@ -43,9 +43,14 @@ module RailsAdmin
                   ability = @object.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @object)
                   ret = {}
                   if params[:user_abilities].present?
-                    params[:user_abilities].each do |a|
-                      _model = a.camelcase
-                      ret[_model] = ability.abilities[_model]
+                    if params[:user_abilities].size == 1
+                      _model = params[:user_abilities].first.camelcase
+                      ret = ability.abilities[_model] || {}
+                    else
+                      params[:user_abilities].each do |a|
+                        _model = a.camelcase
+                        ret[_model] = ability.abilities[_model] || {}
+                      end
                     end
                   else
                     ret = ability.abilities
@@ -117,7 +122,7 @@ module RailsAdmin
         end
 
         register_instance_option :route_fragment do
-          'model_accesses'
+          'access'
         end
 
         register_instance_option :controller do
@@ -131,12 +136,7 @@ module RailsAdmin
                   @user = ::User.for_rails_admin.where(id: params[:user_id]).first
                   unless @user.nil?
                     ability = @user.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @user)
-                    params[:model_accesses].each do |a|
-                      next if a != @user.id.to_s
-                      _model = a.camelcase
-                      # ability.accesses[_model] = {}
-                      ability.accesses.delete(_model)
-                    end
+                    ability.accesses.delete(@object.class.name.camelcase)
                     ability.save
                   end
                   redirect_to model_accesses_path(model_name: @abstract_model, id: @object.id, user_id: @user._id)
@@ -144,16 +144,7 @@ module RailsAdmin
                 when 'update_json'
                   @user = ::User.for_rails_admin.where(id: params[:user_id]).first
                   ability = @user.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @user)
-                  ret = {}
-                  if params[:model_accesses].present?
-                    params[:model_accesses].each do |a|
-                      next if a.keys.first != @user.id.to_s
-                      _model = a.keys.first.camelcase
-                      ret[_model] = ability.accesses[_model]
-                    end
-                  else
-                    ret = ability.abilities
-                  end
+                  ret = ((ability.accesses[@object.class.name.camelcase] || {})[@object.id.to_s] || {})
                   render plain: JSON.pretty_generate(ret)
 
                 else
