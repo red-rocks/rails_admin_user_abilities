@@ -23,6 +23,8 @@
           .tab-pane{id=_id data-url=url class="#{"active" if @user and @user.id == u.id}"}
             .row-fluid
               .controls
+                - user_url = rails_admin.url_for(action: 'show', controller: 'rails_admin/main', model_name: :user, id: u.id)
+                h3== "Права доступа для пользователя: #{link_to u.email, user_url}"
                 = link_to "Сбросить по умолчанию", model_accesses_path(model_name: @abstract_model, id: @object.id, user_id: u._id, act: :set_default)
                 br
                 - [:manage, :read].each do |_action_str|

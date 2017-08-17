@@ -30,6 +30,8 @@
           .tab-pane{id=_id class="#{"active" if params[:user_ability] == _model_str}"}
             .row-fluid
               .controls
+                - model_url = rails_admin.url_for(action: 'index', controller: 'rails_admin/main', model_name: m.abstract_model.to_param)
+                h3== "Права доступа к модели: #{link_to _title, model_url}"
                 = link_to "Сбросить по умолчанию", user_abilities_path(model_name: @abstract_model, id: @object.id, act: :set_default, user_abilities: [_model_str])
                 br
                 - [:manage, :read].each do |_action_str|
