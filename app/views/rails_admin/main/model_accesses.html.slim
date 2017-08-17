@@ -10,7 +10,8 @@
       .col-md-3
         ul.nav.nav-pills.nav-stacked
           - @users.each do |u|
-            li= link_to u.email, "#user_abilities_#{u._id}".freeze, title: u._id, "data-toggle" => "tab".freeze
+            li{class="#{"active" if @user and @user.id == u.id}"}
+              = link_to u.email, "#user_abilities_#{u._id}".freeze, title: u._id, "data-toggle" => "tab".freeze
         .cf
             
       .tab-content.col-md-9
@@ -19,7 +20,7 @@
             url = model_accesses_path(model_name: @abstract_model, id: @object.id, user_id: u._id)
             user_abilities = ::Ability.new(u)
             _id = "user_abilities_#{u._id}".freeze
-          .tab-pane{id=_id data-url=url}
+          .tab-pane{id=_id data-url=url class="#{"active" if @user and @user.id == u.id}"}
             .row-fluid
               .controls
                 = link_to "Сбросить по умолчанию", model_accesses_path(model_name: @abstract_model, id: @object.id, user_id: u._id, act: :set_default)

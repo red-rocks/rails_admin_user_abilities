@@ -37,7 +37,11 @@ module RailsAdmin
                     ability.abilities.delete(_model)
                   end
                   ability.save
-                  redirect_to user_abilities_path(model_name: @abstract_model, id: @object.id)
+                  if params[:user_abilities].size == 1
+                    redirect_to user_abilities_path(model_name: @abstract_model, id: @object.id, user_ability: params[:user_abilities].first)
+                  else
+                    redirect_to user_abilities_path(model_name: @abstract_model, id: @object.id)
+                  end
 
                 when 'update_json'
                   ability = @object.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @object)
@@ -140,6 +144,7 @@ module RailsAdmin
                     ability.save
                   end
                   redirect_to model_accesses_path(model_name: @abstract_model, id: @object.id, user_id: @user._id)
+                  # redirect_to model_accesses_path(model_name: @abstract_model, id: @object.id)
 
                 when 'update_json'
                   @user = ::User.for_rails_admin.where(id: params[:user_id]).first
@@ -149,6 +154,7 @@ module RailsAdmin
 
                 else
                   @users = ::User.for_rails_admin.all.to_a || []
+                  @user = ::User.for_rails_admin.where(id: params[:user_id]).first if params[:user_id].present?
                   @excluded_actions = ["dashboard", "index", "history_index", "model_comments"]
                   @action_aliases = {
                     show: :read

@@ -14,7 +14,8 @@
               _content = m.abstract_model.config.label
               _title = m.abstract_model.config.label
               _link = "#user_abilities_#{_model.name.gsub("::", "").underscore}".freeze
-            li= link_to _content, _link, title: _title, "data-toggle" => "tab" 
+            li{class="#{"active" if params[:user_ability] == _model.name.underscore}"}
+              = link_to _content, _link, title: _title, "data-toggle" => "tab" 
         .cf
             
       .tab-content.col-md-9
@@ -26,7 +27,7 @@
             _title = m.abstract_model.config.label
             _id = "user_abilities_#{_model.name.gsub("::", "").underscore}".freeze
               
-          .tab-pane{id=_id}
+          .tab-pane{id=_id class="#{"active" if params[:user_ability] == _model_str}"}
             .row-fluid
               .controls
                 = link_to "Сбросить по умолчанию", user_abilities_path(model_name: @abstract_model, id: @object.id, act: :set_default, user_abilities: [_model_str])
