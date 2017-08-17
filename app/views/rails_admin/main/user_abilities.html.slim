@@ -73,6 +73,9 @@
       - update_json_url = user_abilities_path(model_name: @abstract_model, id: @object.id, act: :update_json)
       .col-md-12.json_block
         hr
+        - all_models = @models.map { |m| m.abstract_model.model.name.underscore }
+        = link_to "Сбросить по умолчанию всё!", user_abilities_path(model_name: @abstract_model, id: @object.id, act: :set_default, user_abilities: all_models), data: {confirm: "Точно?"}
+        br
         button(data-toggle="collapse" data-target="#abilities_hash" class="toggle_json_block")= "Чистый код".freeze
         button(data-remote="true" data-target="#abilities_hash pre" data-url=update_json_url class="update_json_block")= "Обновить".freeze
         #abilities_hash.collapse
