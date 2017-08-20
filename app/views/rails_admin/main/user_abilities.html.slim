@@ -4,7 +4,7 @@
   #rails_admin_user_abilities_wrapper
     = stylesheet_link_tag 'rails_admin/rails_admin_user_abilities'
     = javascript_include_tag 'rails_admin/rails_admin_user_abilities'
-    
+
     #rails_admin_user_abilities.col-md-12{data-url=url}
       .col-md-3
         ul.nav.nav-pills.nav-stacked
@@ -15,9 +15,9 @@
               _title = m.abstract_model.config.label
               _link = "#user_abilities_#{_model.name.gsub("::", "").underscore}".freeze
             li{class="#{"active" if params[:user_ability] == _model.name.underscore}"}
-              = link_to _content, _link, title: _title, "data-toggle" => "tab" 
+              = link_to _content, _link, title: _title, "data-toggle" => "tab"
         .cf
-            
+
       .tab-content.col-md-9
         - @models.each do |m|
           ruby:
@@ -26,7 +26,7 @@
             _content = m.abstract_model.config.label
             _title = m.abstract_model.config.label
             _id = "user_abilities_#{_model.name.gsub("::", "").underscore}".freeze
-              
+
           .tab-pane{id=_id class="#{"active" if params[:user_ability] == _model_str}"}
             .row-fluid
               .controls
@@ -41,11 +41,11 @@
                     = check_box "user_abilities[]#{_model_str}".freeze, _action_str, {checked: @user_abilities.can?(_action_str, _model), class: "user_abilities_trigger".freeze, data: {confirm_message: confirm_message}}, "can".freeze, "cannot".freeze
                     = label("user_abilities[]#{_model_str}".freeze, _action_str, "#{I18n.t("admin.user_abilities.global_actions.#{_action_str}")} (#{_action_str})")
                 hr
-                ruby: 
+                ruby:
                   _bindings = {
                     abstract_model: m.abstract_model,
                     view: self
-                  }   
+                  }
                   dangerous_actions = ['model_accesses', 'user_abilities'].freeze
                 - RailsAdmin::Config::Actions.all(:all, _bindings).select { |a| a.http_methods.include?(:get) }.map do |a|
                   - _action = a.class.name.demodulize
@@ -56,32 +56,32 @@
                     - confirm_message = "Вы уверены, что хотите изменить права доступа '#{wording_for(:menu, a, m.abstract_model)}'?"
                   - else
                     - confirm_message = nil
-                    
+
                   div
                     = check_box "user_abilities[]#{_model_str}".freeze, _action_str, {checked: @user_abilities.can?(_action_str.to_sym, _model), class: "user_abilities_trigger".freeze, data: {confirm_message: confirm_message}}, "can".freeze, "cannot".freeze
                     = label("user_abilities[]#{_model_str}".freeze, _action_str, "#{wording_for(:menu, a, m.abstract_model)} (#{_action_str})")
-                    
+
               - if @object.ability
                 - block_abilities_hash_id = "abilities_hash_#{_model_str.gsub("/", "_")}"
                 - update_json_url = user_abilities_path(model_name: @abstract_model, id: @object.id, act: :update_json, user_abilities: [_model_str])
                 .json_block
                   hr
-                  button(data-toggle="collapse" data-target="##{block_abilities_hash_id}" class="toggle_json_block")= "Чистый код".freeze
+                  button(data-toggle="collapse" data-target="##{block_abilities_hash_id}" class="toggle_json_block collapsed")= "Чистый код".freeze
                   button(data-remote="true" data-target="##{block_abilities_hash_id} pre" data-url=update_json_url class="update_json_block")= "Обновить".freeze
                   .collapse(id=block_abilities_hash_id)
                     pre= JSON.pretty_generate(@object.ability.abilities[_model.name] || {})
-                    
-    - if @object.ability
-      - update_json_url = user_abilities_path(model_name: @abstract_model, id: @object.id, act: :update_json)
-      .col-md-12.json_block
-        hr
-        - all_models = @models.map { |m| m.abstract_model.model.name.underscore }
-        = link_to "Сбросить по умолчанию всё!", user_abilities_path(model_name: @abstract_model, id: @object.id, act: :set_default, user_abilities: all_models), data: {confirm: "Точно?"}
-        br
-        button(data-toggle="collapse" data-target="#abilities_hash" class="toggle_json_block")= "Чистый код".freeze
-        button(data-remote="true" data-target="#abilities_hash pre" data-url=update_json_url class="update_json_block")= "Обновить".freeze
-        #abilities_hash.collapse
-          pre= JSON.pretty_generate @object.ability.abilities
+
+      - if @object.ability
+        - update_json_url = user_abilities_path(model_name: @abstract_model, id: @object.id, act: :update_json)
+        .col-md-12.json_block
+          hr
+          - all_models = @models.map { |m| m.abstract_model.model.name.underscore }
+          = link_to "Сбросить по умолчанию всё!", user_abilities_path(model_name: @abstract_model, id: @object.id, act: :set_default, user_abilities: all_models), data: {confirm: "Точно?"}
+          br
+          button(data-toggle="collapse" data-target="#abilities_hash" class="toggle_json_block collapsed")= "Чистый код".freeze
+          button(data-remote="true" data-target="#abilities_hash pre" data-url=update_json_url class="update_json_block")= "Обновить".freeze
+          #abilities_hash.collapse
+            pre= JSON.pretty_generate @object.ability.abilities
   .cf{style='clear: both'}
 
 - elsif request.post?
@@ -91,6 +91,6 @@
     javascript:
       setTimeout(function(){
         $('##{uniq_id}').fadeOut(100, function(){
-          $('##{uniq_id}').remove(); 
-        }); 
+          $('##{uniq_id}').remove();
+        });
       }, 1000);
