@@ -5,49 +5,63 @@
   #rails_admin_model_accesses_wrapper
     = stylesheet_link_tag 'rails_admin/rails_admin_user_abilities'
     = javascript_include_tag 'rails_admin/rails_admin_user_abilities'
-    
+
     #rails_admin_model_accesses.col-md-12
       .col-md-3
         ul.nav.nav-pills.nav-stacked
           - @users.each do |u|
-            li= link_to u.email, "#user_abilities_#{u._id}".freeze, title: u._id, "data-toggle" => "tab".freeze
+            li{class="#{"active" if @user and @user.id == u.id}"}
+              = link_to u.email, "#user_abilities_#{u._id}".freeze, title: u._id, "data-toggle" => "tab".freeze
         .cf
-            
+
       .tab-content.col-md-9
         - @users.each do |u|
           ruby:
             url = model_accesses_path(model_name: @abstract_model, id: @object.id, user_id: u._id)
             user_abilities = ::Ability.new(u)
             _id = "user_abilities_#{u._id}".freeze
-          .tab-pane{id=_id data-url=url}
+          .tab-pane{id=_id data-url=url class="#{"active" if @user and @user.id == u.id}"}
             .row-fluid
               .controls
+                - user_url = rails_admin.url_for(action: 'show', controller: 'rails_admin/main', model_name: :user, id: u.id)
+                h3== "Права доступа для пользователя: #{link_to u.email, user_url}"
+                = link_to "Сбросить по умолчанию", model_accesses_path(model_name: @abstract_model, id: @object.id, user_id: u._id, act: :set_default)
+                br
                 - [:manage, :read].each do |_action_str|
                   div
-                    = check_box "model_accesses[][#{u._id}]#{_model_str}".freeze, _action_str, {checked: user_abilities.can?(_action_str, @object), class: "model_accesses_trigger".freeze}, "can".freeze, "cannot".freeze
+                    - confirm_message = "Вы уверены, что хотите изменить права доступа '#{I18n.t("admin.user_abilities.global_actions.#{_action_str}")}'?"
+                    / - confirm_on_change = "return confirm('#{confirm_message}');"
+                    = check_box "model_accesses[][#{u._id}]#{_model_str}".freeze, _action_str, {checked: user_abilities.can?(_action_str, @object), class: "model_accesses_trigger".freeze, data: {confirm_message: confirm_message}}, "can".freeze, "cannot".freeze
                     = label("model_accesses[][#{u._id}]#{_model_str}".freeze, _action_str, "#{I18n.t("admin.user_abilities.global_actions.#{_action_str}")} (#{_action_str})")
                 hr
-                ruby: 
+                ruby:
                   _bindings = {
                     abstract_model: @abstract_model,
                     view: self
                   }
+                  dangerous_actions = ['model_accesses', 'user_abilities', 'delete'].freeze
                 - RailsAdmin::Config::Actions.all(:all, _bindings).select { |a| a.http_methods.include?(:get) and a.member? }.map do |a|
                   - _action = a.class.name.demodulize
                   - _action_str = _action.underscore
                   - next if @excluded_actions.include?(_action_str)
                   - next unless a.visible
-                  
+                  - if dangerous_actions.include?(_action_str)
+                    - confirm_message = "Вы уверены, что хотите изменить права доступа '#{wording_for(:menu, a, @abstract_model)}'?"
+                  - else
+                    - confirm_message = nil
+
                   div
-                    = check_box "model_accesses[][#{u._id}]#{_model_str}".freeze, _action_str, {checked: user_abilities.can?(_action_str.to_sym, @object), class: "model_accesses_trigger".freeze}, "can".freeze, "cannot".freeze
+                    = check_box "model_accesses[][#{u._id}]#{_model_str}".freeze, _action_str, {checked: user_abilities.can?(_action_str.to_sym, @object), class: "model_accesses_trigger".freeze, data: {confirm_message: confirm_message}}, "can".freeze, "cannot".freeze
                     = label("model_accesses[][#{u._id}]#{_model_str}".freeze, _action_str, "#{wording_for(:menu, a, @abstract_model)} (#{_action_str})")
-                    
-            - if u.ability
-              .json_block.col-md-12
-                hr
-                button(data-toggle="collapse" data-target="#model_accesses_hash_#{u.id}")= "Чистый код".freeze
-                .collapse(id="model_accesses_hash_#{u.id}")
-                  pre= JSON.pretty_generate({"#{_model.name}": (u.ability.accesses[_model.name] || {}) })
+
+              - if u.ability
+                - update_json_url = model_accesses_path(model_name: @abstract_model, id: @object.id, user_id: u._id, act: :update_json)
+                .json_block.col-md-12
+                  hr
+                  button(data-toggle="collapse" data-target="#model_accesses_hash_#{u.id}" class="toggle_json_block collapsed")= "Чистый код".freeze
+                  button(data-remote="true" data-target="#model_accesses_hash_#{u.id} pre" data-url=update_json_url class="update_json_block")= "Обновить".freeze
+                  .collapse(id="model_accesses_hash_#{u.id}")
+                    pre= JSON.pretty_generate(((u.ability.accesses[_model.name] || {})[@object.id.to_s] || {}))
   .cf{style='clear: both'}
 
 - elsif request.post?
@@ -57,7 +71,6 @@
     javascript:
       setTimeout(function(){
         $('##{uniq_id}').fadeOut(100, function(){
-          $('##{uniq_id}').remove(); 
-        }); 
+          $('##{uniq_id}').remove();
+        });
       }, 1000);
- 

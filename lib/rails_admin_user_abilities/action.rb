@@ -19,7 +19,7 @@ module RailsAdmin
         end
 
         register_instance_option :route_fragment do
-          'user_abilities'
+          'ability'
         end
 
         register_instance_option :controller do
@@ -28,13 +28,48 @@ module RailsAdmin
 
             if params['id'].present?
               if request.get?
-                @user_abilities = ::Ability.new(@object)
-                @models = RailsAdmin::Config.visible_models({})
-                @excluded_actions = ["dashboard"]
-                @action_aliases = {
-                  show: :read
-                }
-                render action: @action.template_name
+                case params[:act].to_s
+                when 'set_default'
+                  ability = @object.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @object)
+                  params[:user_abilities].each do |a|
+                    _model = a.camelcase
+                    # ability.abilities[_model] = {}
+                    ability.abilities.delete(_model)
+                  end
+                  ability.save
+                  if params[:user_abilities].size == 1
+                    redirect_to user_abilities_path(model_name: @abstract_model, id: @object.id, user_ability: params[:user_abilities].first)
+                  else
+                    redirect_to user_abilities_path(model_name: @abstract_model, id: @object.id)
+                  end
+
+                when 'update_json'
+                  ability = @object.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @object)
+                  ret = {}
+                  if params[:user_abilities].present?
+                    if params[:user_abilities].size == 1
+                      _model = params[:user_abilities].first.camelcase
+                      ret = ability.abilities[_model] || {}
+                    else
+                      params[:user_abilities].each do |a|
+                        _model = a.camelcase
+                        ret[_model] = ability.abilities[_model] || {}
+                      end
+                    end
+                  else
+                    ret = ability.abilities
+                  end
+                  render plain: JSON.pretty_generate(ret)
+
+                else
+                  @user_abilities = ::Ability.new(@object)
+                  @models = RailsAdmin::Config.visible_models({})
+                  @excluded_actions = ["dashboard"]
+                  @action_aliases = {
+                    show: :read
+                  }
+                  render action: @action.template_name
+                end
 
               elsif request.post?
                 ability = @object.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @object)
@@ -91,7 +126,7 @@ module RailsAdmin
         end
 
         register_instance_option :route_fragment do
-          'model_accesses'
+          'access'
         end
 
         register_instance_option :controller do
@@ -100,12 +135,32 @@ module RailsAdmin
 
             if params['id'].present?
               if request.get?
-                @users = ::User.for_rails_admin.all.to_a || []
-                @excluded_actions = ["dashboard", "index", "history_index", "model_comments"]
-                @action_aliases = {
-                  show: :read
-                }
-                render action: @action.template_name
+                case params[:act].to_s
+                when 'set_default'
+                  @user = ::User.for_rails_admin.where(id: params[:user_id]).first
+                  unless @user.nil?
+                    ability = @user.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @user)
+                    ability.accesses.delete(@object.class.name.camelcase)
+                    ability.save
+                  end
+                  redirect_to model_accesses_path(model_name: @abstract_model, id: @object.id, user_id: @user._id)
+                  # redirect_to model_accesses_path(model_name: @abstract_model, id: @object.id)
+
+                when 'update_json'
+                  @user = ::User.for_rails_admin.where(id: params[:user_id]).first
+                  ability = @user.ability || RailsAdminUserAbilities::UserAbility.new(rails_admin_user_abilitable: @user)
+                  ret = ((ability.accesses[@object.class.name.camelcase] || {})[@object.id.to_s] || {})
+                  render plain: JSON.pretty_generate(ret)
+
+                else
+                  @users = ::User.for_rails_admin.all.to_a || []
+                  @user = ::User.for_rails_admin.where(id: params[:user_id]).first if params[:user_id].present?
+                  @excluded_actions = ["dashboard", "index", "history_index", "model_comments"]
+                  @action_aliases = {
+                    show: :read
+                  }
+                  render action: @action.template_name
+                end
 
               elsif request.post? and params[:user_id].present?
                 @user = ::User.for_rails_admin.where(id: params[:user_id]).first

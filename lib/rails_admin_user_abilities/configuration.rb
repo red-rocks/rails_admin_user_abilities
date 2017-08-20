@@ -5,14 +5,6 @@ module RailsAdminUserAbilities
     end
 
     def options
-      # @options ||= {
-      #     fields: [{}],
-      #     thumbnail_fields: [:image, :cover],
-      #     label_methods: [:name, :label],
-      #     hint_fields: [],
-      #     thumbnail_size: :thumb,
-      #     thumbnail_gem: :paperclip,
-      # }.merge(config || {})
       @options ||= {}
     end
 
