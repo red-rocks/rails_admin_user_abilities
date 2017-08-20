@@ -10,7 +10,7 @@ require 'rails_admin_user_abilities/configuration'
 require 'rails_admin/config/actions'
 require 'rails_admin/config/model'
 require 'rails_admin_user_abilities/action'
-# require 'rails_admin_user_abilities/model'
+require 'rails_admin_user_abilities/model'
 require 'rails_admin_user_abilities/helper'
 
 module RailsAdminUserAbilities
