@@ -19,7 +19,7 @@ module RailsAdmin
         end
 
         register_instance_option :route_fragment do
-          'ability'
+          'ability'.freeze
         end
 
         register_instance_option :controller do
@@ -80,11 +80,11 @@ module RailsAdmin
                   ability.abilities[_model] = _model_rules
                 end
                 if ability.save
-                  @_class = "success"
-                  @message = "Успешно!"
+                  @_class = "success".freeze
+                  @message = "Успешно!".freeze
                 else
-                  @_class = "error"
-                  @message = "Нихера!"
+                  @_class = "error".freeze
+                  @message = "Ошибка!".freeze
                 end
                 render action: @action.template_name, layout: false
 
@@ -94,11 +94,11 @@ module RailsAdmin
         end
 
         register_instance_option :link_icon do
-          'icon-tasks'
+          'icon-tasks'.freeze
         end
 
         register_instance_option :http_methods do
-          [:get, :post]
+          [:get, :post].freeze
         end
       end
     end
@@ -126,12 +126,12 @@ module RailsAdmin
         end
 
         register_instance_option :route_fragment do
-          'access'
+          'access'.freeze
         end
 
         register_instance_option :controller do
           Proc.new do |klass|
-            @config = ::RailsAdminUserAbilities::Configuration.new @abstract_model
+            @config = ::RailsAdminModelAccesses::Configuration.new @abstract_model
 
             if params['id'].present?
               if request.get?
@@ -180,11 +180,11 @@ module RailsAdmin
                   end
                 end
                 if ability and ability.save
-                  @_class = "success"
-                  @message = "Успешно!"
+                  @_class = "success".freeze
+                  @message = "Успешно!".freeze
                 else
-                  @_class = "error"
-                  @message = "Нихера!"
+                  @_class = "error".freeze
+                  @message = "Ошибка!".freeze
                 end
                 render action: @action.template_name, layout: false
               end
@@ -193,11 +193,11 @@ module RailsAdmin
         end
 
         register_instance_option :link_icon do
-          'icon-user'
+          'icon-user'.freeze
         end
 
         register_instance_option :http_methods do
-          [:get, :post]
+          [:get, :post].freeze
         end
       end
     end

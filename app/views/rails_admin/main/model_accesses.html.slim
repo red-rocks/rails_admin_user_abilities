@@ -39,13 +39,12 @@
                     abstract_model: @abstract_model,
                     view: self
                   }
-                  dangerous_actions = ['model_accesses', 'user_abilities', 'delete'].freeze
                 - RailsAdmin::Config::Actions.all(:all, _bindings).select { |a| a.http_methods.include?(:get) and a.member? }.map do |a|
                   - _action = a.class.name.demodulize
                   - _action_str = _action.underscore
                   - next if @excluded_actions.include?(_action_str)
                   - next unless a.visible
-                  - if dangerous_actions.include?(_action_str)
+                  - if @config.options[:dangerous_actions].include?(_action_str)
                     - confirm_message = "Вы уверены, что хотите изменить права доступа '#{wording_for(:menu, a, @abstract_model)}'?"
                   - else
                     - confirm_message = nil
