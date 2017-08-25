@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{CanCanCan fields for rails_admin}
   spec.description   = %q{CanCanCan fields for rails_admin}
-  spec.homepage      = "https://github.com/enjoycreative/rails_admin_user_abilities"
+  spec.homepage      = "https://github.com/red-rocks/rails_admin_user_abilities"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
