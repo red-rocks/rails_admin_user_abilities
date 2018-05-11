@@ -32,5 +32,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rails", ['>= 5.0', '< 6.0']
 
-  spec.add_dependency "rails_admin", ['>= 1.0.0.rc', "< 2.0"]
+  spec.add_dependency "rails_admin", ['>= 1.3.0', "< 2.0"]
 end

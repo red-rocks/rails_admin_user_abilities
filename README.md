@@ -28,7 +28,7 @@ Add in app/models/user.rb (temporary decision, it will be more configurable in f
   scope :for_rails_admin, -> { where(:roles.in => ['admin', 'manager']) } # could be any you want, just need to
 ```
 
-Add actions for rails_admin panel (in initializers/raisl_admin.rb)
+Add actions for rails_admin panel (in initializers/rails_admin.rb)
 ```ruby
 RailsAdmin.config do |config|
   # some code
@@ -41,6 +41,12 @@ RailsAdmin.config do |config|
         render_object and render_object.current_user.admin? and
         ["User"].include? bindings[:abstract_model].model_name
       end
+      dangerous_actions do
+        {
+          "SomeModel2": ["delete"],
+          :all => ["sitemap"]
+        }
+      end
     end
     model_accesses do
       visible do
@@ -48,10 +54,15 @@ RailsAdmin.config do |config|
         render_object and render_object.current_user.admin? and
         ["SomeModel1", "SomeModel2"].include? bindings[:abstract_model].model_name
       end
+      dangerous_actions do
+        ["delete", "export"]
+      end
     end
   end
 end
 ```
+
+Changes for `dangerous_actions` will be done after confirmation. To prevent accidental unchangeable behavior.
 
 Also add method for set CanCanCan rules (in app/models/ability.rb)
 ```ruby
